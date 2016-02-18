@@ -102,6 +102,11 @@ import static de.robv.android.xposed.XposedHelpers.setStaticObjectField;
 
 		final HashSet<String> loadedPackagesInProcess = new HashSet<>(1);
 
+		// Hook Samsung Art to disable Mdpp and Fips
+		if (SamsungHelper.isSamsungRom()) {
+			SamsungHelper.hookMdpp();
+		}
+
 		// normal process initialization (for new Activity, Service, BroadcastReceiver etc.)
 		findAndHookMethod(ActivityThread.class, "handleBindApplication", "android.app.ActivityThread.AppBindData", new XC_MethodHook() {
 			@Override
@@ -135,6 +140,8 @@ import static de.robv.android.xposed.XposedHelpers.setStaticObjectField;
 
 				if (reportedPackageName.equals(INSTALLER_PACKAGE_NAME))
 					hookXposedInstaller(lpparam.classLoader);
+
+				SamsungHelper.hookSamsungSecureStorage(reportedPackageName, lpparam.classLoader);
 			}
 		});
 
