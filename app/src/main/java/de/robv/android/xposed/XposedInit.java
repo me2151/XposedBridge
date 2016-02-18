@@ -115,11 +115,15 @@ import static de.robv.android.xposed.XposedHelpers.setStaticObjectField;
 				ApplicationInfo appInfo = (ApplicationInfo) getObjectField(param.args[0], "appInfo");
 				String reportedPackageName = appInfo.packageName.equals("android") ? "system" : appInfo.packageName;
 				SELinuxHelper.initForProcess(reportedPackageName);
-				ComponentName instrumentationName = (ComponentName) getObjectField(param.args[0], "instrumentationName");
-				if (instrumentationName != null) {
-					Log.w(TAG, "Instrumentation detected, disabling framework for " + reportedPackageName);
-					XposedBridge.disableHooks = true;
-					return;
+				//do not check instrumentation for samsung roms
+				//we need to always keep active some samsung hooks
+				if (!SamsungHelper.isSamsungRom()) {
+					ComponentName instrumentationName = (ComponentName) getObjectField(param.args[0], "instrumentationName");
+					if (instrumentationName != null) {
+						Log.w(TAG, "Instrumentation detected, disabling framework for " + reportedPackageName);
+						XposedBridge.disableHooks = true;
+						return;
+					}
 				}
 				CompatibilityInfo compatInfo = (CompatibilityInfo) getObjectField(param.args[0], "compatInfo");
 				if (appInfo.sourceDir == null)
